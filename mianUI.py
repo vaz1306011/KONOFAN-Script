@@ -23,3 +23,4 @@ class Ks_Win(konosubaScript.KonosubaScript):
 
 if __name__ == "__main__":
     Ks_Win()
+    print('test')
