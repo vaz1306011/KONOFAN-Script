@@ -7,9 +7,6 @@ def main():
     key = input('(1)刷活動小關卡 (2)刷活動boss (3)刷競技場:')
     if key == '0':
         ks.goHome()
-        # n=pag.locateCenterOnScreen(
-        #     "picture/adventure/adventure_0.png", confidence=0.9, grayscale=True)
-        # pag.click(n)
     elif key == '1':
         ks.eventAdventureLoop()
     elif key == '2':
