@@ -1,6 +1,3 @@
-import pyautogui as pag
-
-
 def main():
     from konosubaScript import KonosubaScript
     ks = KonosubaScript()
