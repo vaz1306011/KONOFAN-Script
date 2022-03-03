@@ -27,16 +27,14 @@ class Operate:
         if type(location) == str:  # 如果傳入字串把字串轉成位置
             location = pag.locateCenterOnScreen(
                 self._pic[location], confidence=0.9)  # , grayscale=True
-        if confidence == None:
-            confidence = self.pag_confidence
+        confidence = confidence or self.pag_confidence
         current_mouse = pag.position()  # 獲取原本滑鼠位置
         pag.click(location)  # 點擊偵測到的圖片
         pag.moveTo(current_mouse)  # 滑鼠回原本位置
 
     def _find(self, *locations, confidence=None) -> bool:
         '''尋找圖片'''
-        if confidence == None:
-            confidence = self.pag_confidence
+        confidence = confidence or self.pag_confidence
         for location in locations:
             point = pag.locateCenterOnScreen(
                 self._pic[location], confidence=confidence)  # , grayscale=True
