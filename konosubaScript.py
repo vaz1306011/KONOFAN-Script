@@ -33,6 +33,8 @@ class KonosubaScript(operate.Operate):
         '''選擇隊伍'''
         time.sleep(0.4)
         self._waitLoading()
+        if not self._find('go'):
+            return False
         team_number = {'team_battle_arena_normal': 0,
                        'team_battle_arena_ex': 1,
                        'team_event': 2}
@@ -156,6 +158,7 @@ class KonosubaScript(operate.Operate):
                 return True
             return self._waitClick('ok', wait=1)
 
+        self._select_team('team_event')
         while event_boss():
             pass
         self._waitClick('next', delay=1)
