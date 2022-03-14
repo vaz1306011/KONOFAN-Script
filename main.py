@@ -7,7 +7,7 @@ def main():
     elif key == '1':
         ks.eventAdventureLoop()
     elif key == '2':
-        firstDelay = input('首次延遲:')
+        firstDelay = input('首次延遲(直接Enter=60s):')
         ks.eventBossLoop(firstDelay)
     elif key == '3':
         ks.battleArenaLoop()

@@ -152,7 +152,8 @@ class KonosubaScript(operate.Operate):
         @count_delay
         def event_boss():  # 跑一次活動
             print('準備下一場\n')
-            self._waitClick('again', 'dead_again', delay=2)
+            if self._waitClick('go', 'again', 'dead_again', delay=2) == 'go':
+                return True
             return self._waitClick('ok', wait=1)
 
         while event_boss():

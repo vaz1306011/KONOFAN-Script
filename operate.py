@@ -23,7 +23,7 @@ class Operate:
                 pic_address.write("{\n\n}")
 
     def _click(self, location: str, confidence=None) -> None:
-        '''按下'''
+        '''按下,可傳入pic_address中的名稱或是座標'''
         if type(location) == str:  # 如果傳入字串把字串轉成位置
             location = pag.locateCenterOnScreen(
                 self._pic[location], confidence=0.9)  # , grayscale=True
@@ -33,17 +33,19 @@ class Operate:
         pag.moveTo(current_mouse)  # 滑鼠回原本位置
 
     def _find(self, *locations, confidence=None) -> bool:
-        '''尋找圖片'''
+        '''尋找圖,如果有找到回傳圖片 名稱[0] 和 位置[1],否則回傳False'''
         confidence = confidence or self.pag_confidence
         for location in locations:
+            # print('try', location)
             point = pag.locateCenterOnScreen(
                 self._pic[location], confidence=confidence)  # , grayscale=True
             if point:
-                return point
+                # print('found', location)
+                return location, point
         return False
 
     def _waitClick(self, *locations: str, delay: float = 0, wait: float = -1, confidence: float = None) -> bool:
-        '''等待並按下'''
+        '''等待並按下,如果有按下回圖片名稱,否則回傳False'''
         if confidence == None:
             confidence = self.pag_confidence
         if wait >= 0:
@@ -51,15 +53,17 @@ class Operate:
         while self._find('loading'):
             time.sleep(self.loopPause)
         while True:
-            location = self._find(*locations, confidence=confidence)
-            if location:
+            try:
+                location, point = self._find(*locations, confidence=confidence)
+            except TypeError:
+                if wait >= 0 and time.perf_counter() > timeout:
+                    return False
+                time.sleep(self.loopPause)
+            else:
                 break
-            if wait >= 0 and time.perf_counter() > timeout:
-                return False
-            time.sleep(self.loopPause)
         time.sleep(delay)
-        self._click(location, confidence=confidence)
-        return True
+        self._click(point, confidence=confidence)
+        return location
 
 
 if __name__ == "__main__":
