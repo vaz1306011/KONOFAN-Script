@@ -1,9 +1,9 @@
-from msilib.schema import Error
-
-
 def main():
+    print('正在載入模組...')
     from konosubaScript import KonosubaScript
     ks = KonosubaScript()
+    from os import system
+    system('cls')
     try:
         key = input('(1)刷活動小關卡 (2)刷活動boss (3)刷競技場:')
         if key == '0':
