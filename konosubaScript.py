@@ -155,7 +155,7 @@ class KonosubaScript(operate.Operate):
         def event_boss():  # 跑一次活動
             print('準備下一場\n')
             if self._waitClick('go', 'again', 'dead_again', delay=2) == 'go':
-                return True
+                return
             return self._waitClick('ok', wait=1)
 
         self._select_team('team_event')
