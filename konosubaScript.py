@@ -1,3 +1,4 @@
+from typing import Union
 import time
 import operate
 import pyautogui as pag
@@ -31,17 +32,15 @@ class KonosubaScript(operate.Operate):
 
     def _select_team(self, team) -> None:
         '''選擇隊伍'''
-        time.sleep(0.4)
-        self._waitLoading()
         if not self._find('go'):
             return False
-        team_number = {'team_battle_arena_normal': 0,
-                       'team_battle_arena_ex': 1,
-                       'team_event': 2}
+        teamNumber = {'team_battle_arena_normal': 0,
+                      'team_battle_arena_ex': 1,
+                      'team_event': 2}
         c = 0
-        for t in team_number.keys():
+        for t in teamNumber.keys():
             if self._find(t):
-                c = team_number[t]-team_number[team]
+                c = teamNumber[t]-teamNumber[team]
                 coordinate = pag.locateCenterOnScreen(
                     self._pic[t], confidence=0.75)
                 break
@@ -57,7 +56,7 @@ class KonosubaScript(operate.Operate):
                 break
             time.sleep(0.2)
 
-    def goAdventure(self) -> None:
+    def goAdventure(self) -> bool:
         '''移動到戰鬥'''
         if self._find('adventure_0'):
             self._click('adventure_0')
@@ -67,7 +66,7 @@ class KonosubaScript(operate.Operate):
             return True
         return False
 
-    def battleArenaLoop(self) -> None:
+    def battleArenaLoop(self) -> bool:
         '''刷競技場'''
         def battleArena(mode):
             if self._waitClick(f'battle_arena_{mode}_0', wait=0):
@@ -118,49 +117,49 @@ class KonosubaScript(operate.Operate):
         battleArena('normal')
         battleArena('ex')
 
-    def eventBossLoop(self, first_delay) -> None:  # 活動迴圈
+    def eventBossLoop(self, firstDelay) -> None:  # 活動迴圈
         '''刷活動BOSS'''
-        default_delay = 60
-        delay = default_delay
 
-        def count_delay(fun):
-            def r_fun():
-                nonlocal delay, first_delay
+        def eventBoss(delay, printChange=True) -> float:  # 跑一次活動
+            '''傳入等待時間,等待後嘗試再來一局,並回傳下次延遲時間,如無法再來一局回傳-1'''
+            print(f"延遲{delay:.1f}秒")
+            time.sleep(delay)
 
-                if first_delay != "":  # 首次延遲設定
-                    delay = int(first_delay)
-
-                print(f"延遲{delay:.1f}秒")
-                time.sleep(delay)
-                ready_time = time.perf_counter()
-                keep_loop = fun()
-                waited = time.perf_counter()-ready_time-2
-
-                if first_delay != "":  # 首次延遲回調
-                    delay = default_delay
-                    first_delay = ""
-                    return keep_loop
-
-                print(f"本次等待{waited:.1f}秒")
-                if waited <= 2.5:
-                    change = -5
-                else:
-                    change = (time.perf_counter()-ready_time-2)/2
-                print(f'延遲變更{change:.1f}秒')
-                delay += change
-                return keep_loop
-            return r_fun
-
-        @count_delay
-        def event_boss():  # 跑一次活動
             print('準備下一場\n')
-            if self._waitClick('go', 'again', 'dead_again', delay=2) == 'go':
-                return
-            return self._waitClick('ok', wait=1)
+            readyTime = time.perf_counter()
+
+            clicked = self._waitClick('go', 'again', 'dead_again', delay=2)
+            if clicked == 'go':
+                return True
+            if not self._waitClick('ok', wait=1):
+                return -1
+
+            waited = time.perf_counter()-readyTime-2
+            if waited <= 2.5:
+                change = -5
+            else:
+                change = (time.perf_counter()-readyTime-2)/2
+            delay += change
+
+            if printChange:
+                print(f"等待{waited:.1f}秒")
+                print(f'延遲變更{change:.1f}秒')
+            return delay
 
         self._select_team('team_event')
-        while event_boss():
-            pass
+
+        try:
+            keepRun = eventBoss(int(firstDelay), False)
+
+        except ValueError:
+            keepRun = eventBoss(0, False)
+        nowDelay = 60  # 首次預設延遲
+        if keepRun:
+            while True:
+                if nowDelay == -1:
+                    break
+                nowDelay = eventBoss(nowDelay)
+
         self._waitClick('next', delay=1)
         self._waitClick('back', delay=0.5)
 
@@ -178,7 +177,7 @@ class KonosubaScript(operate.Operate):
             self._select_team('team_event')
             self._waitClick('go')
 
-    def goHome(self) -> None:
+    def goHome(self) -> bool:
         '''回主畫面'''
         if self._find('home_0'):
             self._waitClick('home_0')
