@@ -1,4 +1,3 @@
-from typing import Union
 import time
 import operate
 import pyautogui as pag

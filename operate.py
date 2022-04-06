@@ -5,7 +5,6 @@ from typing import Union
 import win32api
 import win32con
 import win32gui
-import autoit
 
 # 不知道什麼原理,反正這3條讓我可以在副螢幕上用這個腳本
 from PIL import ImageGrab
@@ -42,7 +41,7 @@ class Operate:
 
         win32api.SetCursorPos(location)
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN | win32con.MOUSEEVENTF_LEFTUP, 0, 0)
-        time.sleep(0.01)
+        time.sleep(0.05)
 
         # pag.moveTo(currentMouse)  # 滑鼠回原本位置
 
