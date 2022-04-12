@@ -28,7 +28,7 @@ class Operate:
                 pic_address.write("{\n\n}")
 
     def _click(self, location: str, confidence=None) -> None:
-        '''按下,可傳入pic_address中的名稱或是座標'''
+        '''傳入pic_address中的名稱或是座標並按下'''
         if type(location) == str:  # 如果傳入字串把字串轉成位置
             location = pag.locateCenterOnScreen(self._pic[location], confidence=0.9)
         confidence = confidence or self.pag_confidence
@@ -48,7 +48,7 @@ class Operate:
         win32api.SetCursorPos(currentMouse)
 
     def _find(self, *locations, confidence=None) -> Union[tuple, None]:
-        '''尋找圖,如果有找到回傳圖片 名稱[0] 和 位置[1],否則回傳False'''
+        '''尋找圖,如果有找到回傳圖片 名稱[0] 和 位置[1],否則回傳None'''
         confidence = confidence or self.pag_confidence
         for location in locations:
             # print('try', location)
@@ -59,7 +59,7 @@ class Operate:
         return None
 
     def _waitClick(self, *locations: str, delay: float = 0, wait: float = -1, confidence: float = None) -> Union[str, None]:
-        '''等待並按下,如果有按下回圖片名稱,否則回傳False'''
+        '''等待並按下,如果有按下回圖片名稱,否則回傳None'''
         if confidence == None:
             confidence = self.pag_confidence
         if wait >= 0:
