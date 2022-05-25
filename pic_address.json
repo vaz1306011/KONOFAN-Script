@@ -31,6 +31,6 @@
     "battle_arena_ex": "picture/adventure/battle_arena/ex/battle_arena_ex.png",
     "job": "picture/home/job/job.png",
     "all_receive": "picture/home/job/all_receive.png",
-    "train": "picture/test/train.png",
-    "train_go": "picture/test/train_go.png"
+    "train": "picture/train/train.png",
+    "train_go": "picture/train/train_go.png"
 }

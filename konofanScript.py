@@ -138,26 +138,28 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
     firstDelay: 第一次延遲
     '''
 
-    nowDelay = 60  # 首次預設延遲
+    defalutDelay = 60  # 首次延遲
 
-    def eventBoss(delay, printChange=True) -> float:  # 跑一次活動
+    def eventBoss(delay, returnDelay=True) -> float:  # 跑一次活動
         '''
         傳入等待時間,等待後嘗試再來一局,並回傳下次延遲時間,如無法再來一局回傳-1
         delay: 等待時間
         printChange: 是否列出等待時間和延遲變更
         '''
-
-        delay = float(delay)
+        try:
+            delay = float(delay)
+        except ValueError:
+            delay = 0
         print(f"延遲{delay:.1f}秒")
         sleep(delay)
 
         print('準備下一場\n')
-        point = op.waitClick('go', 'again', 'dead_again', delay=2)
-        readyTime = perf_counter()
-        if point.name == 'go':
-            return True
+        readyTime = perf_counter()+2
+        op.waitClick('go', 'again', 'dead_again', delay=2)
         if op.waitClick('ok', wait=1) is None:
             return -1
+        if not returnDelay:
+            return
 
         # 延遲時間計算
         waited = perf_counter()-readyTime
@@ -167,19 +169,17 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
             change = (perf_counter()-readyTime)/2
         delay += change
 
-        if printChange:
-            print(f"等待{waited:.1f}秒")
-            print(f'延遲變更{change:.1f}秒')
+        print(f"等待{waited:.1f}秒")
+        print(f'延遲變更{change:.1f}秒')
         return delay
 
     select_team('team_event')
-
-    keepRun = eventBoss(firstDelay, False)
-    if keepRun:
-        while True:
-            if nowDelay == -1:
-                break
-            nowDelay = eventBoss(nowDelay, True)
+    eventBoss(firstDelay, returnDelay=False)
+    nowDelay = defalutDelay
+    while True:
+        if nowDelay == -1:
+            break
+        nowDelay = eventBoss(nowDelay)
 
     op.waitClick('next', delay=1)
     op.waitClick('back', delay=0.5)

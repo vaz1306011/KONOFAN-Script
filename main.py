@@ -1,9 +1,9 @@
 def main():
     print('正在載入模組...')
-    from konofanScript import KonofanScript
-    ks = KonofanScript()
+    import konofanScript as ks
     from os import system
     system('cls')
+    ks.op.setPicPath('pic_address.json')
     try:
         key = input('(1)刷活動小關卡 (2)刷活動boss (3)刷競技場:')
         if key == '0':

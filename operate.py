@@ -110,7 +110,7 @@ def click(*locations, confidence: float = defalutConfidence) -> None:
     # 點擊偵測到的圖片
     win32api.SetCursorPos((point.x, point.y))
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN | win32con.MOUSEEVENTF_LEFTUP, 0, 0)
-    # sleep(0.05)
+    sleep(0.05)
 
     # 滑鼠回原本位置
     win32api.SetCursorPos(currentMouse)
@@ -121,12 +121,11 @@ def waitClick(*locations, delay: float = 0, wait: float = -1, confidence: float 
     '''
     等待並按下,時間內有按下回圖片Point,超時則回傳None
     locations: 圖片名稱 或 座標
-    delay: 開頭延遲
+    delay: 找到圖片後延遲時間
     wait: 等待時間 (wait<0 時無限等待 | wait>=0 時如超過等待時間未按下回傳None)
     confidence: 搜尋精準度
     '''
 
-    sleep(delay)
     # 計算超時時間
     if wait >= 0:
         timeout = perf_counter()+wait
@@ -139,5 +138,6 @@ def waitClick(*locations, delay: float = 0, wait: float = -1, confidence: float 
         if wait >= 0 and perf_counter() >= timeout:
             return None
         sleep(loopPause)
+    sleep(delay)
     click(point)
     return point
