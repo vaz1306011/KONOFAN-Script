@@ -1,7 +1,8 @@
-import time
+from typing import Union
+import os.path
+from time import perf_counter, sleep
 import pyautogui as pag
 import json
-from typing import Union
 import win32api
 import win32con
 import win32gui
@@ -12,73 +13,131 @@ from functools import partial
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 
-class Operate:
-    '''滑鼠功能操作'''
+pag.FAILSAFE = True  # 失效安全防護
+defalutConfidence = 0.9  # 預設搜尋精準度
+loopPause = 0.5  # 迴圈間隔
+_pic = None  # 圖片表
 
-    def __init__(self) -> None:
-        pag.FAILSAFE = True  # 失效安全防護
-        self.pag_confidence = 0.9  # 預設搜尋精準度
-        self.loopPause = 0.5  # 迴圈間隔
-        try:
-            with open('pic_address.json', 'r') as pic_address:  # 匯入圖片
-                self._pic = json.load(pic_address)
 
-        except (json.decoder.JSONDecodeError, FileNotFoundError):
-            with open('pic_address.json', 'w+') as pic_address:
-                pic_address.write("{\n\n}")
+class Point:
+    '''
+    圖片座標類
+    '''
 
-    def _click(self, location: str, confidence=None) -> None:
-        '''傳入pic_address中的名稱或是座標並按下'''
-        if type(location) == str:  # 如果傳入字串把字串轉成位置
-            location = pag.locateCenterOnScreen(self._pic[location], confidence=0.9)
-        confidence = confidence or self.pag_confidence
+    def __init__(self, name=None,  x: int = None, y: int = None, *, pagPoint: pag.Point = None):
+        self.name = name
+        if pagPoint is not None:
+            self.x = pagPoint[0]
+            self.y = pagPoint[1]
+        else:
+            self.x = x
+            self.y = y
 
-        # current_mouse = pag.position()  # 獲取原本滑鼠位置
+    def __repr__(self):
+        return f'({self.name}:{self.x}, {self.y})'
 
-        currentMouse = win32gui.GetCursorPos()
+    def __add__(self, other: Union['Point', tuple]):
+        if type(other) == tuple:
+            return Point(x=self.x+other[0], y=self.y+other[1])
+        return Point(x=self.x+other.x, y=self.y+other.y)
 
-        # pag.click(location)  # 點擊偵測到的圖片
 
-        win32api.SetCursorPos(location)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN | win32con.MOUSEEVENTF_LEFTUP, 0, 0)
-        time.sleep(0.05)
+def setPicPath(path: str) -> None:
+    '''
+    設定圖片表路徑
+    path: 路徑
+    '''
 
-        # pag.moveTo(currentMouse)  # 滑鼠回原本位置
+    global _pic
+    if os.path.isfile(path):
+        with open(path, 'r') as picAddress:
+            _pic = json.load(picAddress)
+    else:
+        raise Exception('找不到圖片表')
 
-        win32api.SetCursorPos(currentMouse)
 
-    def _find(self, *locations, confidence=None) -> Union[tuple, None]:
-        '''尋找圖,如果有找到回傳圖片 名稱[0] 和 位置[1],否則回傳None'''
-        confidence = confidence or self.pag_confidence
-        for location in locations:
-            # print('try', location)
-            point = pag.locateCenterOnScreen(self._pic[location], confidence=confidence)
-            if point:
-                # print('found', location)
-                return location, point
+def checkPicPath(fun):
+    '''
+    檢查圖片表是否存在
+    '''
+
+    def rtn(*args, **kwargs):
+        if _pic is None:
+            raise Exception('圖片表未設定')
+        return fun(*args, **kwargs)
+    return rtn
+
+
+@checkPicPath
+def find(*locations: Union[str, Point], confidence: float = defalutConfidence) -> Union[Point, None]:
+    '''
+    將圖片名稱轉成座標 (如果傳入名稱有找到回傳座標,否則回傳None)
+    locations: 圖片名稱 或 座標
+    confidence: 搜尋精準度
+    '''
+
+    for location in locations:
+        if type(location) == str:
+            pagPoint = pag.locateCenterOnScreen(_pic[location], confidence=confidence)
+            if pagPoint is not None:
+                return Point(location, pagPoint[0], pagPoint[1])
+        elif type(location) == Point:
+            return location
+        elif type(location) == 'pyscreeze.Point':
+            return Point(None, location.x, location.y)
+        else:
+            raise Exception('參數錯誤')
+    else:
         return None
 
-    def _waitClick(self, *locations: str, delay: float = 0, wait: float = -1, confidence: float = None) -> Union[str, None]:
-        '''等待並按下,如果有按下回圖片名稱,否則回傳None'''
-        if confidence == None:
-            confidence = self.pag_confidence
-        if wait >= 0:
-            timeout = time.perf_counter()+wait
-        while self._find('loading'):
-            time.sleep(self.loopPause)
-        while True:
-            try:
-                location, point = self._find(*locations, confidence=confidence)
-            except TypeError:
-                if wait >= 0 and time.perf_counter() > timeout:
-                    return None
-                time.sleep(self.loopPause)
-            else:
-                break
-        time.sleep(delay)
-        self._click(point, confidence=confidence)
-        return location
+
+@checkPicPath
+def click(*locations, confidence: float = defalutConfidence) -> None:
+    '''
+    傳入pic_address中的名稱或是座標並按下
+    location: 圖片名稱 或 座標
+    confidence: 搜尋精準度
+    '''
+
+    point = find(*locations, confidence=confidence)
+
+    if point is None:
+        raise Exception("找不到圖片")
+
+    # 獲取原本滑鼠位置
+    currentMouse = win32gui.GetCursorPos()
+
+    # 點擊偵測到的圖片
+    win32api.SetCursorPos((point.x, point.y))
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN | win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+    # sleep(0.05)
+
+    # 滑鼠回原本位置
+    win32api.SetCursorPos(currentMouse)
 
 
-if __name__ == "__main__":
-    Operate()
+@checkPicPath
+def waitClick(*locations, delay: float = 0, wait: float = -1, confidence: float = defalutConfidence) -> Union[Point, None]:
+    '''
+    等待並按下,時間內有按下回圖片Point,超時則回傳None
+    locations: 圖片名稱 或 座標
+    delay: 開頭延遲
+    wait: 等待時間 (wait<0 時無限等待 | wait>=0 時如超過等待時間未按下回傳None)
+    confidence: 搜尋精準度
+    '''
+
+    sleep(delay)
+    # 計算超時時間
+    if wait >= 0:
+        timeout = perf_counter()+wait
+    # 循環搜尋
+    while True:
+        point = find(*locations, confidence=confidence)
+        # print(point)
+        if point is not None:
+            break
+        if wait >= 0 and perf_counter() >= timeout:
+            return None
+        sleep(loopPause)
+    click(point)
+    return point
