@@ -1,8 +1,10 @@
 from time import perf_counter, sleep
-import pyautogui as pag
-import operate as op
-from operate import Point, defalutConfidence
 from typing import Union
+
+import pyautogui as pag
+
+import operate as op
+from operate import Point, DEFALUT_CONFIDENCE
 
 
 def waitLoading() -> None:
@@ -13,11 +15,14 @@ def waitLoading() -> None:
     while not op.find('loading'):
         if perf_counter() > timeout:
             break
+
         sleep(op.LOOPPAUSE)
+
     timeout = perf_counter()+1
     while op.find('loading'):
         if perf_counter() > timeout:
             break
+
         sleep(op.LOOPPAUSE)
 
 
@@ -27,6 +32,7 @@ def waitBattleEnd() -> None:
     '''
     while not op.find('fighting'):
         sleep(op.LOOPPAUSE)
+
     while op.find('fighting'):
         sleep(op.LOOPPAUSE)
 
@@ -39,6 +45,7 @@ def select_team(team: str) -> None:
     '''
     if not op.find('go'):
         return False
+
     teamNumber = {'team_battle_arena_normal': 0,
                   'team_battle_arena_ex': 1,
                   'team_event': 2}
@@ -46,18 +53,22 @@ def select_team(team: str) -> None:
     for t in teamNumber.keys():
         if op.find(t):
             c = teamNumber[t]-teamNumber[team]
-            labelPoint = Point(pagPoint=pag.locateCenterOnScreen(op.PIC[t], confidence=defalutConfidence))
+            point = pag.locateCenterOnScreen(op.PIC[t], confidence=DEFALUT_CONFIDENCE)
+            labelPoint = Point(pagPoint=point)
             break
 
     while True:
         if c == 0:
             break
-        if c > 0:
+
+        elif c > 0:
             op.click(labelPoint+(1090, 240))
             c -= 1
-        if c < 0:
+
+        elif c < 0:
             op.click(labelPoint+(110, 240))
             c += 1
+
         sleep(0.2)
 
 
@@ -68,9 +79,11 @@ def goAdventure() -> bool:
     if op.find('adventure_0'):
         op.click('adventure_0')
         return True
+
     elif op.find('adventure_1'):
         op.click('adventure_1')
         return True
+
     return False
 
 
@@ -81,14 +94,18 @@ def battleArenaLoop() -> bool:
     def battleArena(mode):
         if op.waitClick(f'battle_arena_{mode}_0', wait=0):
             waitLoading()
+
         if op.find('no_challenge'):
             return False
+
         op.waitClick('ok', wait=0)
         op.waitClick('challenge')
         if mode == 'normal':
             op.waitClick('advanced', delay=0.5)
+
         elif mode == 'ex':
             op.waitClick('battle_arena_ex', delay=0.5)
+
         op.waitClick('ready', delay=0.5)
         select_team(f'team_battle_arena_{mode}')
         op.waitClick('go')
@@ -99,24 +116,30 @@ def battleArenaLoop() -> bool:
                 if op.find('refresh'):
                     refresh = True
                     break
+
                 if op.find('next'):
                     refresh = False
                     break
                 sleep(op.LOOPPAUSE)
+
             if op.waitClick('refresh', wait=1, delay=1):
                 print('刷新')
                 sleep(1)
                 pag.click()
                 sleep(1)
                 pag.click()
+
             op.waitClick('next', delay=2)
             op.waitClick('next', delay=1.5)
             if refresh and mode == 'normal':
                 op.waitClick('next', delay=1.5)
+
             op.waitClick('ok', wait=1)
             op.waitClick('again')
+
             if not op.waitClick('ok', wait=0.5):
                 break
+
         op.waitClick('next')
         return True
 
@@ -145,8 +168,10 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
         '''
         try:
             delay = float(delay)
+
         except ValueError:
             delay = 0
+
         print(f"延遲{delay:.1f}秒")
         sleep(delay)
 
@@ -155,6 +180,7 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
         op.waitClick('go', 'again', 'dead_again', delay=2)
         if op.waitClick('ok', wait=1) is None:
             return -1
+
         if not returnDelay:
             return
 
@@ -162,8 +188,10 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
         waited = perf_counter()-readyTime
         if waited <= 2.5:
             change = -5
+
         else:
             change = (perf_counter()-readyTime)/2
+
         delay += change
 
         print(f"等待{waited:.1f}秒")
@@ -173,9 +201,11 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
     select_team('team_event')
     eventBoss(firstDelay, returnDelay=False)
     nowDelay = DEFAULT_DELAY
+
     while True:
         if nowDelay == -1:
             break
+
         nowDelay = eventBoss(nowDelay)
 
     op.waitClick('next', delay=1)
@@ -196,6 +226,7 @@ def eventAdventureLoop() -> None:
         op.waitClick('watch_later', wait=1)
         if not op.waitClick('ready'):
             break
+
         select_team('team_event')
         op.waitClick('go')
 
@@ -206,8 +237,10 @@ def goHome() -> bool:
     '''
     if op.find('home_0'):
         op.waitClick('home_0')
+
     elif op.find('home_1'):
         op.waitClick('home_1')
+
     return False
 
 
