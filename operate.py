@@ -12,11 +12,11 @@ from PIL import ImageGrab
 from functools import partial
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
-
 pag.FAILSAFE = True  # 失效安全防護
-defalutConfidence = 0.9  # 預設搜尋精準度
-loopPause = 0.5  # 迴圈間隔
-_pic = None  # 圖片表
+
+DEFALUT_CONFIDENCE = 0.9  # 預設搜尋精準度
+LOOPPAUSE = 0.5  # 迴圈間隔
+PIC = None  # 圖片表
 
 
 class Point:
@@ -24,7 +24,7 @@ class Point:
     圖片座標類
     '''
 
-    def __init__(self, name=None,  x: int = None, y: int = None, *, pagPoint: pag.Point = None):
+    def __init__(self, name=None,  x: int = None, y: int = None, *, pagPoint: pag.Point = None) -> None:
         self.name = name
         if pagPoint is not None:
             self.x = pagPoint[0]
@@ -33,10 +33,10 @@ class Point:
             self.x = x
             self.y = y
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'({self.name}:{self.x}, {self.y})'
 
-    def __add__(self, other: Union['Point', tuple]):
+    def __add__(self, other: Union['Point', tuple]) -> 'Point':
         if type(other) == tuple:
             return Point(x=self.x+other[0], y=self.y+other[1])
         return Point(x=self.x+other.x, y=self.y+other.y)
@@ -45,13 +45,13 @@ class Point:
 def setPicPath(path: str) -> None:
     '''
     設定圖片表路徑
+
     path: 路徑
     '''
-
-    global _pic
+    global PIC
     if os.path.isfile(path):
         with open(path, 'r') as picAddress:
-            _pic = json.load(picAddress)
+            PIC = json.load(picAddress)
     else:
         raise Exception('找不到圖片表')
 
@@ -60,25 +60,24 @@ def checkPicPath(fun):
     '''
     檢查圖片表是否存在
     '''
-
     def rtn(*args, **kwargs):
-        if _pic is None:
-            raise Exception('圖片表未設定')
+        if PIC is None:
+            raise Exception('圖片表不存在')
         return fun(*args, **kwargs)
     return rtn
 
 
 @checkPicPath
-def find(*locations: Union[str, Point], confidence: float = defalutConfidence) -> Union[Point, None]:
+def find(*locations: Union[str, Point], confidence: float = DEFALUT_CONFIDENCE) -> Union[Point, None]:
     '''
     將圖片名稱轉成座標 (如果傳入名稱有找到回傳座標,否則回傳None)
+
     locations: 圖片名稱 或 座標
     confidence: 搜尋精準度
     '''
-
     for location in locations:
         if type(location) == str:
-            pagPoint = pag.locateCenterOnScreen(_pic[location], confidence=confidence)
+            pagPoint = pag.locateCenterOnScreen(PIC[location], confidence=confidence)
             if pagPoint is not None:
                 return Point(location, pagPoint[0], pagPoint[1])
         elif type(location) == Point:
@@ -92,13 +91,13 @@ def find(*locations: Union[str, Point], confidence: float = defalutConfidence) -
 
 
 @checkPicPath
-def click(*locations, confidence: float = defalutConfidence) -> None:
+def click(*locations, confidence: float = DEFALUT_CONFIDENCE) -> None:
     '''
     傳入pic_address中的名稱或是座標並按下
+
     location: 圖片名稱 或 座標
     confidence: 搜尋精準度
     '''
-
     point = find(*locations, confidence=confidence)
 
     if point is None:
@@ -117,15 +116,16 @@ def click(*locations, confidence: float = defalutConfidence) -> None:
 
 
 @checkPicPath
-def waitClick(*locations, delay: float = 0, wait: float = -1, confidence: float = defalutConfidence) -> Union[Point, None]:
+def waitClick(*locations, delay: float = 0, wait: float = -1, confidence: float = DEFALUT_CONFIDENCE) -> Union[Point, None]:
     '''
     等待並按下,時間內有按下回圖片Point,超時則回傳None
+
     locations: 圖片名稱 或 座標
-    delay: 找到圖片後延遲時間
+    delay: 開頭延遲
     wait: 等待時間 (wait<0 時無限等待 | wait>=0 時如超過等待時間未按下回傳None)
     confidence: 搜尋精準度
     '''
-
+    sleep(delay)
     # 計算超時時間
     if wait >= 0:
         timeout = perf_counter()+wait
@@ -137,7 +137,6 @@ def waitClick(*locations, delay: float = 0, wait: float = -1, confidence: float 
             break
         if wait >= 0 and perf_counter() >= timeout:
             return None
-        sleep(loopPause)
-    sleep(delay)
+        sleep(LOOPPAUSE)
     click(point)
     return point

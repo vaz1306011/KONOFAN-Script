@@ -14,12 +14,12 @@ def waitLoading() -> None:
     while not op.find('loading'):
         if perf_counter() > timeout:
             break
-        sleep(op.loopPause)
+        sleep(op.LOOPPAUSE)
     timeout = perf_counter()+1
     while op.find('loading'):
         if perf_counter() > timeout:
             break
-        sleep(op.loopPause)
+        sleep(op.LOOPPAUSE)
 
 
 def waitBattleEnd() -> None:
@@ -28,9 +28,9 @@ def waitBattleEnd() -> None:
     '''
 
     while not op.find('fighting'):
-        sleep(op.loopPause)
+        sleep(op.LOOPPAUSE)
     while op.find('fighting'):
-        sleep(op.loopPause)
+        sleep(op.LOOPPAUSE)
 
 
 def select_team(team: str) -> None:
@@ -48,7 +48,7 @@ def select_team(team: str) -> None:
     for t in teamNumber.keys():
         if op.find(t):
             c = teamNumber[t]-teamNumber[team]
-            labelPoint = Point(pagPoint=pag.locateCenterOnScreen(op._pic[t], confidence=defalutConfidence))
+            labelPoint = Point(pagPoint=pag.locateCenterOnScreen(op.PIC[t], confidence=defalutConfidence))
             break
 
     while True:
@@ -106,7 +106,7 @@ def battleArenaLoop() -> bool:
                 if op.find('next'):
                     refresh = False
                     break
-                sleep(op.loopPause)
+                sleep(op.LOOPPAUSE)
             if op.waitClick('refresh', wait=1, delay=1):
                 print('刷新')
                 sleep(1)
