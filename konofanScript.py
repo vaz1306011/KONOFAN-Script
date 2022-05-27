@@ -9,7 +9,6 @@ def waitLoading() -> None:
     '''
     等待Loading
     '''
-
     timeout = perf_counter()+1
     while not op.find('loading'):
         if perf_counter() > timeout:
@@ -26,7 +25,6 @@ def waitBattleEnd() -> None:
     '''
     等待戰鬥結束
     '''
-
     while not op.find('fighting'):
         sleep(op.LOOPPAUSE)
     while op.find('fighting'):
@@ -36,9 +34,9 @@ def waitBattleEnd() -> None:
 def select_team(team: str) -> None:
     '''
     選擇隊伍
-    team: 隊伍名稱
-    '''
 
+    team: 隊伍名稱 (team_battle_arena_normal, team_battle_arena_ex, team_event)
+    '''
     if not op.find('go'):
         return False
     teamNumber = {'team_battle_arena_normal': 0,
@@ -67,7 +65,6 @@ def goAdventure() -> bool:
     '''
     移動到戰鬥
     '''
-
     if op.find('adventure_0'):
         op.click('adventure_0')
         return True
@@ -81,7 +78,6 @@ def battleArenaLoop() -> bool:
     '''
     刷競技場
     '''
-
     def battleArena(mode):
         if op.waitClick(f'battle_arena_{mode}_0', wait=0):
             waitLoading()
@@ -135,14 +131,15 @@ def battleArenaLoop() -> bool:
 def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
     '''
     刷活動BOSS
+
     firstDelay: 第一次延遲
     '''
-
-    defalutDelay = 60  # 首次延遲
+    DEFAULT_DELAY = 60  # 首次延遲
 
     def eventBoss(delay, returnDelay=True) -> float:  # 跑一次活動
         '''
         傳入等待時間,等待後嘗試再來一局,並回傳下次延遲時間,如無法再來一局回傳-1
+
         delay: 等待時間
         printChange: 是否列出等待時間和延遲變更
         '''
@@ -175,7 +172,7 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
 
     select_team('team_event')
     eventBoss(firstDelay, returnDelay=False)
-    nowDelay = defalutDelay
+    nowDelay = DEFAULT_DELAY
     while True:
         if nowDelay == -1:
             break
@@ -189,7 +186,6 @@ def eventAdventureLoop() -> None:
     '''
     刷新活動關卡
     '''
-
     while True:
         op.waitClick('next', delay=1.5)
         sleep(1)
@@ -208,7 +204,6 @@ def goHome() -> bool:
     '''
     回主畫面
     '''
-
     if op.find('home_0'):
         op.waitClick('home_0')
     elif op.find('home_1'):
@@ -220,7 +215,6 @@ def goJob() -> None:
     '''
     到打工畫面
     '''
-
     op.waitClick('job')
     op.waitClick('all_receive')
     op.waitClick('ok')

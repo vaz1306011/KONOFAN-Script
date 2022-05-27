@@ -23,7 +23,6 @@ class Point:
     '''
     圖片座標類
     '''
-
     def __init__(self, name=None,  x: int = None, y: int = None, *, pagPoint: pag.Point = None) -> None:
         self.name = name
         if pagPoint is not None:
