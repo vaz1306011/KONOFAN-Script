@@ -4,7 +4,7 @@ from typing import Union
 import pyautogui as pag
 
 import operate as op
-from operate import Point, DEFALUT_CONFIDENCE
+from operate import Point, NamedPixelColor, DEFALUT_CONFIDENCE
 
 
 def waitLoading() -> None:
@@ -54,22 +54,20 @@ def select_team(team: str) -> None:
         if op.find(t):
             c = teamNumber[t]-teamNumber[team]
             point = pag.locateCenterOnScreen(op.PIC[t], confidence=DEFALUT_CONFIDENCE)
-            labelPoint = Point(pagPoint=point)
+            teamNamePoint = Point(position=point)
             break
 
     while True:
         if c == 0:
             break
-
         elif c > 0:
-            op.click(labelPoint+(1090, 240))
+            op.click(teamNamePoint+(1090, 240))
             c -= 1
-
         elif c < 0:
-            op.click(labelPoint+(110, 240))
+            op.click(teamNamePoint+(110, 240))
             c += 1
 
-        sleep(0.2)
+        sleep(op.LOOPPAUSE)
 
 
 def goAdventure() -> bool:
@@ -79,7 +77,6 @@ def goAdventure() -> bool:
     if op.find('adventure_0'):
         op.click('adventure_0')
         return True
-
     elif op.find('adventure_1'):
         op.click('adventure_1')
         return True
@@ -102,7 +99,6 @@ def battleArenaLoop() -> bool:
         op.waitClick('challenge')
         if mode == 'normal':
             op.waitClick('advanced', delay=0.5)
-
         elif mode == 'ex':
             op.waitClick('battle_arena_ex', delay=0.5)
 
@@ -136,7 +132,6 @@ def battleArenaLoop() -> bool:
 
             op.waitClick('ok', wait=1)
             op.waitClick('again')
-
             if not op.waitClick('ok', wait=0.5):
                 break
 
@@ -157,38 +152,57 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
 
     firstDelay: 第一次延遲
     '''
-    DEFAULT_DELAY = 60  # 首次延遲
+    DEFAULT_DELAY = 60  # 預設平均延遲
 
-    def eventBoss(delay, returnDelay=True) -> float:  # 跑一次活動
+    def eventBoss() -> int:  # 跑一次活動
         '''
-        傳入等待時間,等待後嘗試再來一局,並回傳下次延遲時間,如無法再來一局回傳-1
-
-        delay: 等待時間
-        printChange: 是否列出等待時間和延遲變更
+        跑一次活動(回傳 1:正常運行, 0:需重製預設延遲, -1:無法繼續)
         '''
-        try:
-            delay = float(delay)
+        button = op.waitFind('next', 'go')
+        if button.name == 'go':
+            op.click(button.name)
+            return 0
+        else:
+            againColor = NamedPixelColor('again', (157, 149, 140))
+            click = op.waitClick('again', 'dead_again', wait=2, centerPixelColor=(againColor,))
 
-        except ValueError:
-            delay = 0
+        if click is None:
+            op.waitClick('next', wait=1)
+            return -1
 
+        op.waitClick('ok')
+        if click.name == 'dead_again':
+            return 0
+
+        return 1
+
+    select_team('team_event')
+    try:
+        delay = float(firstDelay)
+    except ValueError:
+        delay = 0
+
+    eventBoss()
+    delay = DEFAULT_DELAY
+    while True:
         print(f"延遲{delay:.1f}秒")
         sleep(delay)
 
         print('準備下一場\n')
-        readyTime = perf_counter()+2
-        op.waitClick('go', 'again', 'dead_again', delay=2)
-        if op.waitClick('ok', wait=1) is None:
-            return -1
+        readyTime = perf_counter()
 
-        if not returnDelay:
-            return
+        eventRtn = eventBoss()
+        if eventRtn == 0:
+            delay = DEFAULT_DELAY
+            print(f"預設延遲設為{DEFAULT_DELAY}秒")
+            continue
+        elif eventRtn == -1:
+            break
 
         # 延遲時間計算
         waited = perf_counter()-readyTime
         if waited <= 2.5:
             change = -5
-
         else:
             change = (perf_counter()-readyTime)/2
 
@@ -196,17 +210,6 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
 
         print(f"等待{waited:.1f}秒")
         print(f'延遲變更{change:.1f}秒')
-        return delay
-
-    select_team('team_event')
-    eventBoss(firstDelay, returnDelay=False)
-    nowDelay = DEFAULT_DELAY
-
-    while True:
-        if nowDelay == -1:
-            break
-
-        nowDelay = eventBoss(nowDelay)
 
     op.waitClick('next', delay=1)
     op.waitClick('back', delay=0.5)
@@ -237,7 +240,6 @@ def goHome() -> bool:
     '''
     if op.find('home_0'):
         op.waitClick('home_0')
-
     elif op.find('home_1'):
         op.waitClick('home_1')
 
