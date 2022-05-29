@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Union
 import os.path
 from time import perf_counter, sleep
@@ -23,22 +24,50 @@ class Point:
     '''
     圖片座標類
     '''
-    def __init__(self, name=None,  x: int = None, y: int = None, *, pagPoint: pag.Point = None) -> None:
-        self.name = name
-        if pagPoint is not None:
-            self.x = pagPoint[0]
-            self.y = pagPoint[1]
-        else:
-            self.x = x
-            self.y = y
 
-    def __repr__(self) -> str:
-        return f'({self.name}:{self.x}, {self.y})'
+    def __init__(self, name: str = None,  position=None) -> None:
+        self.name = name
+
+        if isinstance(position, Point):
+            self.x = position.x
+            self.y = position.y
+        else:
+            self.x = int(position[0])
+            self.y = int(position[1])
+
+    def __str__(self) -> str:
+        return f'{self.name}:({self.x}, {self.y})'
 
     def __add__(self, other: Union['Point', tuple]) -> 'Point':
-        if type(other) == tuple:
+        if isinstance(other, tuple):
             return Point(x=self.x+other[0], y=self.y+other[1])
-        return Point(x=self.x+other.x, y=self.y+other.y)
+
+        if isinstance(other, Point):
+            return Point(x=self.x+other.x, y=self.y+other.y)
+
+        raise TypeError
+
+
+class NamedPixelColor(namedtuple('NamedPixelColor', ['name', 'color'])):
+    ...
+
+
+def mousePoint() -> Point:
+    '''
+    取得滑鼠位置
+    '''
+    return Point('mouse', (win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]))
+
+
+def pixel(point: Point) -> tuple:
+    '''
+    取得圖片座標點的顏色
+    '''
+    try:
+        point = Point(position=point)
+        return pag.pixel(point.x, point.y)
+    except:
+        return None
 
 
 def setPicPath(path: str) -> None:
@@ -62,45 +91,93 @@ def checkPicPath(fun):
     def rtn(*args, **kwargs):
         if PIC is None:
             raise Exception('圖片表不存在')
+
         return fun(*args, **kwargs)
+
     return rtn
 
 
 @checkPicPath
-def find(*locations: Union[str, Point], confidence: float = DEFALUT_CONFIDENCE) -> Union[Point, None]:
+def find(*locations: Union[str, Point],
+         confidence: float = DEFALUT_CONFIDENCE,
+         centerPixelColor: tuple[NamedPixelColor] = None,
+         tolerance: int = 5
+         ) -> Union[Point, None]:
     '''
     將圖片名稱轉成座標 (如果傳入名稱有找到回傳座標,否則回傳None)
 
-    locations: 圖片名稱 或 座標
+    *locations: 圖片名稱 或 座標
     confidence: 搜尋精準度
+    centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
+    tolerance: 容許誤差
     '''
+    # 尋找各個點
+    point: Point = None
     for location in locations:
-        if type(location) == str:
-            pagPoint = pag.locateCenterOnScreen(PIC[location], confidence=confidence)
+        if isinstance(location, str):
+            pagPoint = pag.locateCenterOnScreen(PIC[location], grayscale=True, confidence=confidence)
             if pagPoint is not None:
-                return Point(location, pagPoint[0], pagPoint[1])
-        elif type(location) == Point:
-            return location
+                point = Point(location, (pagPoint[0], pagPoint[1]))
+        elif isinstance(location, Point):
+            point = location
         elif type(location) == 'pyscreeze.Point':
-            return Point(None, location.x, location.y)
+            point = Point(None, (location.x, location.y))
         else:
             raise Exception('參數錯誤')
+
+        if point is not None:
+            break
     else:
         return None
 
+    # 顏色處理
+    if centerPixelColor is None:
+        return point
 
-@checkPicPath
-def click(*locations, confidence: float = DEFALUT_CONFIDENCE) -> None:
+    npc: NamedPixelColor = None
+    for npc in centerPixelColor:
+        if point.name == npc.name:
+            break
+    else:
+        return point
+
+    if pag.pixelMatchesColor(point.x, point.y, npc.color, tolerance=tolerance):
+        return point
+
+    return None
+
+
+def waitFind(*args, **kwargs) -> Point:
+    '''
+    等待圖片出現
+
+    *locations: 圖片名稱 或 座標
+    confidence: 搜尋精準度
+    centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
+    tolerance: 容許誤差
+    '''
+    while True:
+        point = find(*args, **kwargs)
+        if point:
+            break
+        sleep(LOOPPAUSE)
+
+    return point
+
+
+def click(*locations, **kwargs) -> Union[Point, None]:
     '''
     傳入pic_address中的名稱或是座標並按下
 
-    location: 圖片名稱 或 座標
+    *location: 圖片名稱 或 座標
     confidence: 搜尋精準度
+    centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
+    tolerance: 容許誤差
     '''
-    point = find(*locations, confidence=confidence)
+    point = find(*locations, **kwargs)
 
     if point is None:
-        raise Exception("找不到圖片")
+        return None
 
     # 獲取原本滑鼠位置
     currentMouse = win32gui.GetCursorPos()
@@ -113,29 +190,36 @@ def click(*locations, confidence: float = DEFALUT_CONFIDENCE) -> None:
     # 滑鼠回原本位置
     win32api.SetCursorPos(currentMouse)
 
+    print(point.name)
+    return point
 
-@checkPicPath
-def waitClick(*locations, delay: float = 0, wait: float = -1, confidence: float = DEFALUT_CONFIDENCE) -> Union[Point, None]:
+
+def waitClick(*locations, delay: float = 0, wait: float = -1, **kwargs) -> Union[Point, None]:
     '''
     等待並按下,時間內有按下回圖片Point,超時則回傳None
 
-    locations: 圖片名稱 或 座標
-    delay: 開頭延遲
+    *locations: 圖片名稱 或 座標
+    delay: 找到圖片延遲delay秒後按下
     wait: 等待時間 (wait<0 時無限等待 | wait>=0 時如超過等待時間未按下回傳None)
     confidence: 搜尋精準度
+    centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
+    tolerance: 容許誤差
     '''
-    sleep(delay)
     # 計算超時時間
     if wait >= 0:
         timeout = perf_counter()+wait
+
     # 循環搜尋
     while True:
-        point = find(*locations, confidence=confidence)
-        # print(point)
+        point = find(*locations, **kwargs)
         if point is not None:
             break
+
         if wait >= 0 and perf_counter() >= timeout:
             return None
+
         sleep(LOOPPAUSE)
+
+    sleep(delay)
     click(point)
     return point
