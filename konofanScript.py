@@ -4,7 +4,7 @@ from typing import Union
 import pyautogui as pag
 
 import operate as op
-from operate import Point, NamedPixelColor, DEFALUT_CONFIDENCE
+from operate import LOOP_PAUSE
 
 
 def waitLoading() -> None:
@@ -16,14 +16,14 @@ def waitLoading() -> None:
         if perf_counter() > timeout:
             break
 
-        sleep(op.LOOPPAUSE)
+        sleep(LOOP_PAUSE)
 
     timeout = perf_counter()+1
     while op.find('loading'):
         if perf_counter() > timeout:
             break
 
-        sleep(op.LOOPPAUSE)
+        sleep(LOOP_PAUSE)
 
 
 def waitBattleEnd() -> None:
@@ -31,10 +31,10 @@ def waitBattleEnd() -> None:
     等待戰鬥結束
     '''
     while not op.find('fighting'):
-        sleep(op.LOOPPAUSE)
+        sleep(LOOP_PAUSE)
 
     while op.find('fighting'):
-        sleep(op.LOOPPAUSE)
+        sleep(LOOP_PAUSE)
 
 
 def select_team(team: str) -> None:
@@ -53,8 +53,8 @@ def select_team(team: str) -> None:
     for t in teamNumber.keys():
         if op.find(t):
             c = teamNumber[t]-teamNumber[team]
-            point = pag.locateCenterOnScreen(op.PIC[t], confidence=DEFALUT_CONFIDENCE)
-            teamNamePoint = Point(position=point)
+            point = pag.locateCenterOnScreen(op.PIC[t], confidence=op.DEFALUT_CONFIDENCE)
+            teamNamePoint = op.namedPoint((point.x, point.y))
             break
 
     while True:
@@ -67,7 +67,7 @@ def select_team(team: str) -> None:
             op.click(teamNamePoint+(110, 240))
             c += 1
 
-        sleep(op.LOOPPAUSE)
+        sleep(LOOP_PAUSE)
 
 
 def goAdventure() -> bool:
@@ -116,7 +116,8 @@ def battleArenaLoop() -> bool:
                 if op.find('next'):
                     refresh = False
                     break
-                sleep(op.LOOPPAUSE)
+
+                sleep(LOOP_PAUSE)
 
             if op.waitClick('refresh', wait=1, delay=1):
                 print('刷新')
@@ -163,7 +164,7 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
             op.click(button.name)
             return 0
         else:
-            againColor = NamedPixelColor('again', (157, 149, 140))
+            againColor = op.NamedPixelColor('again', (157, 149, 140))
             click = op.waitClick('again', 'dead_again', wait=2, centerPixelColor=(againColor,))
 
         if click is None:
@@ -182,8 +183,12 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
     except ValueError:
         delay = 0
 
+    print(f"延遲{delay:.1f}秒")
+    sleep(delay)
     eventBoss()
     delay = DEFAULT_DELAY
+    print(f"預設延遲設為{DEFAULT_DELAY}秒")
+
     while True:
         print(f"延遲{delay:.1f}秒")
         sleep(delay)
@@ -191,12 +196,12 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
         print('準備下一場\n')
         readyTime = perf_counter()
 
-        eventRtn = eventBoss()
-        if eventRtn == 0:
+        eventBossRtn = eventBoss()
+        if eventBossRtn == 0:
             delay = DEFAULT_DELAY
             print(f"預設延遲設為{DEFAULT_DELAY}秒")
             continue
-        elif eventRtn == -1:
+        elif eventBossRtn == -1:
             break
 
         # 延遲時間計算

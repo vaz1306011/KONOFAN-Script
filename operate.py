@@ -1,9 +1,10 @@
 from collections import namedtuple
-from typing import Union
-import os.path
-from time import perf_counter, sleep
-import pyautogui as pag
 import json
+import os.path
+from tkinter.messagebox import NO
+import pyautogui as pag
+from time import perf_counter, sleep
+from typing import Iterable, Union
 import win32api
 import win32con
 import win32gui
@@ -13,58 +14,51 @@ from PIL import ImageGrab
 from functools import partial
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
-pag.FAILSAFE = True  # 失效安全防護
-
+FAILSAFE = True  # 失效安全防護
 DEFALUT_CONFIDENCE = 0.9  # 預設搜尋精準度
-LOOPPAUSE = 0.5  # 迴圈間隔
+LOOP_PAUSE = 0.5  # 迴圈間隔
 PIC = None  # 圖片表
 
 
-class Point:
+class namedPoint:
     '''
-    圖片座標類
+    帶名座標類
     '''
 
-    def __init__(self, name: str = None,  position=None) -> None:
-        self.name = name
+    def __init__(self, pos: Union[Iterable, 'namedPoint'], name=None) -> None:
+        try:
+            self.x, self.y = int(pos.x), int(pos.y)
+        except AttributeError:
+            self.x, self.y = int(pos[0]), int(pos[1])
 
-        if isinstance(position, Point):
-            self.x = position.x
-            self.y = position.y
-        else:
-            self.x = int(position[0])
-            self.y = int(position[1])
+        self.name = str(name)
 
     def __str__(self) -> str:
         return f'{self.name}:({self.x}, {self.y})'
 
-    def __add__(self, other: Union['Point', tuple]) -> 'Point':
-        if isinstance(other, tuple):
-            return Point(x=self.x+other[0], y=self.y+other[1])
-
-        if isinstance(other, Point):
-            return Point(x=self.x+other.x, y=self.y+other.y)
-
-        raise TypeError
+    def __add__(self, other: Union[Iterable, 'namedPoint']) -> 'namedPoint':
+        try:
+            return namedPoint((self.x+other.x, self.y+other.y), self.name)
+        except AttributeError:
+            return namedPoint((self.x+other[0], self.y+other[1]))
 
 
 class NamedPixelColor(namedtuple('NamedPixelColor', ['name', 'color'])):
     ...
 
 
-def mousePoint() -> Point:
+def mousePoint() -> namedPoint:
     '''
     取得滑鼠位置
     '''
-    return Point('mouse', (win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]))
+    return namedPoint((win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]), 'CursorPos')
 
 
-def pixel(point: Point) -> tuple:
+def pixel(point: namedPoint) -> tuple:
     '''
     取得圖片座標點的顏色
     '''
     try:
-        point = Point(position=point)
         return pag.pixel(point.x, point.y)
     except:
         return None
@@ -98,11 +92,11 @@ def checkPicPath(fun):
 
 
 @checkPicPath
-def find(*locations: Union[str, Point],
+def find(*locations: Union[str, namedPoint],
          confidence: float = DEFALUT_CONFIDENCE,
          centerPixelColor: tuple[NamedPixelColor] = None,
          tolerance: int = 5
-         ) -> Union[Point, None]:
+         ) -> Union[namedPoint, None]:
     '''
     將圖片名稱轉成座標 (如果傳入名稱有找到回傳座標,否則回傳None)
 
@@ -112,16 +106,16 @@ def find(*locations: Union[str, Point],
     tolerance: 容許誤差
     '''
     # 尋找各個點
-    point: Point = None
+    point: namedPoint = None
     for location in locations:
         if isinstance(location, str):
             pagPoint = pag.locateCenterOnScreen(PIC[location], grayscale=True, confidence=confidence)
             if pagPoint is not None:
-                point = Point(location, (pagPoint[0], pagPoint[1]))
-        elif isinstance(location, Point):
+                point = namedPoint(pagPoint, location)
+        elif isinstance(location, namedPoint):
             point = location
         elif type(location) == 'pyscreeze.Point':
-            point = Point(None, (location.x, location.y))
+            point = namedPoint((location.x, location.y))
         else:
             raise Exception('參數錯誤')
 
@@ -134,7 +128,6 @@ def find(*locations: Union[str, Point],
     if centerPixelColor is None:
         return point
 
-    npc: NamedPixelColor = None
     for npc in centerPixelColor:
         if point.name == npc.name:
             break
@@ -147,7 +140,7 @@ def find(*locations: Union[str, Point],
     return None
 
 
-def waitFind(*args, **kwargs) -> Point:
+def waitFind(*args, **kwargs) -> namedPoint:
     '''
     等待圖片出現
 
@@ -160,12 +153,13 @@ def waitFind(*args, **kwargs) -> Point:
         point = find(*args, **kwargs)
         if point:
             break
-        sleep(LOOPPAUSE)
+
+        sleep(LOOP_PAUSE)
 
     return point
 
 
-def click(*locations, **kwargs) -> Union[Point, None]:
+def click(*locations, **kwargs) -> Union[namedPoint, None]:
     '''
     傳入pic_address中的名稱或是座標並按下
 
@@ -181,6 +175,8 @@ def click(*locations, **kwargs) -> Union[Point, None]:
 
     # 獲取原本滑鼠位置
     currentMouse = win32gui.GetCursorPos()
+    if FAILSAFE and currentMouse[0] == currentMouse[1] == 0:
+        raise Exception('強制結束')
 
     # 點擊偵測到的圖片
     win32api.SetCursorPos((point.x, point.y))
@@ -190,11 +186,10 @@ def click(*locations, **kwargs) -> Union[Point, None]:
     # 滑鼠回原本位置
     win32api.SetCursorPos(currentMouse)
 
-    print(point.name)
     return point
 
 
-def waitClick(*locations, delay: float = 0, wait: float = -1, **kwargs) -> Union[Point, None]:
+def waitClick(*locations, delay: float = 0, wait: float = -1, **kwargs) -> Union[namedPoint, None]:
     '''
     等待並按下,時間內有按下回圖片Point,超時則回傳None
 
@@ -218,7 +213,7 @@ def waitClick(*locations, delay: float = 0, wait: float = -1, **kwargs) -> Union
         if wait >= 0 and perf_counter() >= timeout:
             return None
 
-        sleep(LOOPPAUSE)
+        sleep(LOOP_PAUSE)
 
     sleep(delay)
     click(point)
