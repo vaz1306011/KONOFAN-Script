@@ -75,11 +75,12 @@ def setPicPath(path: str) -> None:
     '''
     設定圖片表路徑
 
-    path: 路徑
+    path: 圖片表路徑
     '''
-    global PIC
-    if os.path.isfile(path):
-        with open(path, 'r') as picAddress:
+    global PIC_PATH, PIC
+    PIC_PATH = path
+    if os.path.isfile(PIC_PATH):
+        with open(PIC_PATH, 'r') as picAddress:
             PIC = json.load(picAddress)
     else:
         raise Exception('找不到圖片表')
