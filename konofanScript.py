@@ -4,7 +4,9 @@ from typing import Union
 import pyautogui as pag
 
 import operate as op
-from operate import LOOP_PAUSE
+from operate import loopPause
+
+
 # 預設圖片表路徑
 DEFAULT_PIC_PATH: str = 'pic_address.json'
 op.setPicPath(DEFAULT_PIC_PATH)
@@ -19,14 +21,14 @@ def waitLoading() -> None:
         if perf_counter() > timeout:
             break
 
-        sleep(LOOP_PAUSE)
+        loopPause()
 
     timeout = perf_counter()+1
     while op.find('loading'):
         if perf_counter() > timeout:
             break
 
-        sleep(LOOP_PAUSE)
+        loopPause()
 
 
 def waitBattleEnd() -> None:
@@ -34,10 +36,10 @@ def waitBattleEnd() -> None:
     等待戰鬥結束
     '''
     while not op.find('fighting'):
-        sleep(LOOP_PAUSE)
+        loopPause()
 
     while op.find('fighting'):
-        sleep(LOOP_PAUSE)
+        loopPause()
 
 
 def select_team(team: str) -> None:
@@ -70,7 +72,7 @@ def select_team(team: str) -> None:
             op.click(teamNamePoint+(110, 240))
             c += 1
 
-        sleep(LOOP_PAUSE)
+        loopPause()
 
 
 def goAdventure() -> bool:
@@ -120,7 +122,7 @@ def battleArenaLoop() -> bool:
                     refresh = False
                     break
 
-                sleep(LOOP_PAUSE)
+                loopPause()
 
             if op.waitClick('refresh', wait=1, delay=1):
                 print('刷新')
