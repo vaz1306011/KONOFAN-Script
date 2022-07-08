@@ -56,11 +56,12 @@ def select_team(team: str) -> None:
                   'team_event': 2}
     c = 0
     for t in teamNumber.keys():
-        if op.find(t):
+        teamNamePoint = op.find(t)
+        if teamNamePoint:
             c = teamNumber[t]-teamNumber[team]
-            point = pag.locateCenterOnScreen(op.PIC[t], confidence=op.DEFALUT_CONFIDENCE)
-            teamNamePoint = op.NamedPoint((point.x, point.y))
             break
+    else:
+        print('沒有找到隊伍名稱')
 
     while True:
         if c == 0:
