@@ -51,10 +51,8 @@ class NamedPixelColor(namedtuple('NamedPixelColor', ['name', 'color'])):
 
 def loopPause(pause=DEFAULT_LOOP_PAUSE):
     '''
-    取得滑鼠位置
     等待迴圈延遲並檢查是否結束
     '''
-    return namedPoint((win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]), 'CursorPos')
     sleep(pause)
     if exit_event.is_set():
         raise ExitEventException('強制結束')
@@ -63,6 +61,9 @@ def loopPause(pause=DEFAULT_LOOP_PAUSE):
 def mousePoint() -> NamedPoint:
     '''
     取得圖片座標點的顏色
+    取得滑鼠座標
+    '''
+    return NamedPoint((win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]), 'CursorPos')
     '''
     try:
         return pag.pixel(point.x, point.y)
