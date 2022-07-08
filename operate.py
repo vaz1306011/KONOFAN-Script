@@ -99,7 +99,7 @@ def setPicPath(path: str) -> None:
         raise Exception('找不到圖片表')
 
 
-def checkPicPath(fun):
+def checkPicPath(fun: callable) -> Any:
     '''
     檢查圖片表是否存在
     '''
