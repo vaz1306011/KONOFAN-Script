@@ -59,7 +59,7 @@ def select_team(team: str) -> None:
         if op.find(t):
             c = teamNumber[t]-teamNumber[team]
             point = pag.locateCenterOnScreen(op.PIC[t], confidence=op.DEFALUT_CONFIDENCE)
-            teamNamePoint = op.namedPoint((point.x, point.y))
+            teamNamePoint = op.NamedPoint((point.x, point.y))
             break
 
     while True:
