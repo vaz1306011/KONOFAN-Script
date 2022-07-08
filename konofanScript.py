@@ -5,6 +5,9 @@ import pyautogui as pag
 
 import operate as op
 from operate import LOOP_PAUSE
+# 預設圖片表路徑
+DEFAULT_PIC_PATH: str = 'pic_address.json'
+op.setPicPath(DEFAULT_PIC_PATH)
 
 
 def waitLoading() -> None:
