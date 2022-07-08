@@ -138,7 +138,7 @@ def find(*locations: Union[str, NamedPoint],
         elif type(location) == 'pyscreeze.Point':
             point = NamedPoint((location.x, location.y))
         else:
-            raise Exception('參數錯誤')
+            raise Exception(f'參數型態錯誤({type(location)})')
 
         if point is not None:
             break
