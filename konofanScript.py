@@ -158,8 +158,6 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
 
     firstDelay: 第一次延遲
     '''
-    DEFAULT_DELAY = 60  # 預設平均延遲
-
     def eventBoss() -> int:  # 跑一次活動
         '''
         跑一次活動(回傳 1:正常運行, 0:需重製預設延遲, -1:無法繼續)
@@ -182,27 +180,24 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
 
         return 1
 
+    DEFAULT_DELAY = 60  # 預設平均延遲
+
     select_team('team_event')
     try:
         delay = float(firstDelay)
     except ValueError:
         delay = 0
 
-    print(f"延遲{delay:.1f}秒")
-    sleep(delay)
-    eventBoss()
-    delay = DEFAULT_DELAY
-    print(f"預設延遲設為{DEFAULT_DELAY}秒")
-
+    firstRun = True
     while True:
         print(f"延遲{delay:.1f}秒")
         sleep(delay)
-
         print('準備下一場\n')
         readyTime = perf_counter()
 
         eventBossRtn = eventBoss()
-        if eventBossRtn == 0:
+        if eventBossRtn == 0 or firstRun:
+            firstRun = False
             delay = DEFAULT_DELAY
             print(f"預設延遲設為{DEFAULT_DELAY}秒")
             continue
@@ -217,7 +212,6 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
             change = (perf_counter()-readyTime)/2
 
         delay += change
-
         print(f"等待{waited:.1f}秒")
         print(f'延遲變更{change:.1f}秒')
 
