@@ -46,14 +46,21 @@ def select_team(team: str) -> None:
     '''
     選擇隊伍
 
-    team: 隊伍名稱 (team_battle_arena_normal, team_battle_arena_ex, team_event)
+    team: 隊伍名稱 (
+        team_battle_arena_normal, 
+        team_battle_arena_ex, 
+        team_event,
+        team_cabbage
+        )
     '''
     if not op.find('go'):
         return False
 
-    teamNumber = {'team_battle_arena_normal': 0,
+    teamNumber = {'team_battle_arena_nm': 0,
                   'team_battle_arena_ex': 1,
-                  'team_event': 2}
+                  'team_event': 2,
+                  'team_cabbage': 3
+                  }
     c = 0
     for t in teamNumber.keys():
         teamNamePoint = op.find(t)
@@ -67,7 +74,7 @@ def select_team(team: str) -> None:
         if c == 0:
             break
         elif c > 0:
-            op.click(teamNamePoint+(1090, 240))
+            op.click(teamNamePoint+(-1090, 240))
             c -= 1
         elif c < 0:
             op.click(teamNamePoint+(110, 240))
