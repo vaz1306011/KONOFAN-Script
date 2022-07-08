@@ -60,10 +60,16 @@ def loopPause(pause=DEFAULT_LOOP_PAUSE):
 
 def mousePoint() -> NamedPoint:
     '''
-    取得圖片座標點的顏色
     取得滑鼠座標
     '''
     return NamedPoint((win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]), 'CursorPos')
+
+
+def getPixel(point: NamedPoint) -> tuple:
+    '''
+    取得圖片座標像素顏色
+
+    point: 座標
     '''
     try:
         return pag.pixel(point.x, point.y)
