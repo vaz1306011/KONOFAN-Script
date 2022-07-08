@@ -22,12 +22,12 @@ PIC_PATH: str  # 圖片表路徑
 PIC: dict  # 圖片表
 
 
-class namedPoint:
+class NamedPoint:
     '''
     帶名座標類
     '''
 
-    def __init__(self, pos: Union[Iterable, 'namedPoint'], name=None) -> None:
+    def __init__(self, pos: Union[Iterable, 'NamedPoint'], name=None) -> None:
         try:
             self.x, self.y = int(pos.x), int(pos.y)
         except AttributeError:
@@ -38,25 +38,24 @@ class namedPoint:
     def __str__(self) -> str:
         return f'{self.name}:({self.x}, {self.y})'
 
-    def __add__(self, other: Union[Iterable, 'namedPoint']) -> 'namedPoint':
+    def __add__(self, other: Union[Iterable, 'NamedPoint']) -> 'NamedPoint':
         try:
-            return namedPoint((self.x+other.x, self.y+other.y), self.name)
+            return NamedPoint((self.x+other.x, self.y+other.y), self.name)
         except AttributeError:
-            return namedPoint((self.x+other[0], self.y+other[1]))
+            return NamedPoint((self.x+other[0], self.y+other[1]))
 
 
 class NamedPixelColor(namedtuple('NamedPixelColor', ['name', 'color'])):
     ...
 
 
-def mousePoint() -> namedPoint:
     '''
     取得滑鼠位置
     '''
     return namedPoint((win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]), 'CursorPos')
 
 
-def pixel(point: namedPoint) -> tuple:
+def mousePoint() -> NamedPoint:
     '''
     取得圖片座標點的顏色
     '''
@@ -94,11 +93,11 @@ def checkPicPath(fun):
 
 
 @checkPicPath
-def find(*locations: Union[str, namedPoint],
+def find(*locations: Union[str, NamedPoint],
          confidence: float = DEFALUT_CONFIDENCE,
          centerPixelColor: tuple[NamedPixelColor] = None,
          tolerance: int = 5
-         ) -> Union[namedPoint, None]:
+         ) -> Union[NamedPoint, None]:
     '''
     將圖片名稱轉成座標 (如果傳入名稱有找到回傳座標,否則回傳None)
 
@@ -108,16 +107,16 @@ def find(*locations: Union[str, namedPoint],
     tolerance: 容許誤差
     '''
     # 尋找各個點
-    point: namedPoint = None
+    point: NamedPoint = None
     for location in locations:
         if isinstance(location, str):
             pagPoint = pag.locateCenterOnScreen(PIC[location], grayscale=True, confidence=confidence)
             if pagPoint is not None:
-                point = namedPoint(pagPoint, location)
-        elif isinstance(location, namedPoint):
+                point = NamedPoint(pagPoint, location)
+        elif isinstance(location, NamedPoint):
             point = location
         elif type(location) == 'pyscreeze.Point':
-            point = namedPoint((location.x, location.y))
+            point = NamedPoint((location.x, location.y))
         else:
             raise Exception('參數錯誤')
 
@@ -142,7 +141,7 @@ def find(*locations: Union[str, namedPoint],
     return None
 
 
-def waitFind(*args, **kwargs) -> namedPoint:
+def waitFind(*args, **kwargs) -> NamedPoint:
     '''
     等待圖片出現
 
@@ -161,7 +160,7 @@ def waitFind(*args, **kwargs) -> namedPoint:
     return point
 
 
-def click(*locations, **kwargs) -> Union[namedPoint, None]:
+def click(*locations, **kwargs) -> Union[NamedPoint, None]:
     '''
     傳入pic_address中的名稱或是座標並按下
 
@@ -191,7 +190,7 @@ def click(*locations, **kwargs) -> Union[namedPoint, None]:
     return point
 
 
-def waitClick(*locations, delay: float = 0, wait: float = -1, **kwargs) -> Union[namedPoint, None]:
+def waitClick(*locations, delay: float = 0, wait: float = -1, **kwargs) -> Union[NamedPoint, None]:
     '''
     等待並按下,時間內有按下回圖片Point,超時則回傳None
 
