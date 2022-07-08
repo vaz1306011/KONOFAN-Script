@@ -22,6 +22,13 @@ PIC_PATH: str  # 圖片表路徑
 PIC: dict  # 圖片表
 
 
+exit_event = threading.Event()
+
+
+class ExitEventException(Exception):
+    ...
+
+
 class NamedPoint:
     '''
     帶名座標類
