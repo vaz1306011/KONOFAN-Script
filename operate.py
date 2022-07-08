@@ -49,10 +49,15 @@ class NamedPixelColor(namedtuple('NamedPixelColor', ['name', 'color'])):
     ...
 
 
+def loopPause(pause=DEFAULT_LOOP_PAUSE):
     '''
     取得滑鼠位置
+    等待迴圈延遲並檢查是否結束
     '''
     return namedPoint((win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]), 'CursorPos')
+    sleep(pause)
+    if exit_event.is_set():
+        raise ExitEventException('強制結束')
 
 
 def mousePoint() -> NamedPoint:
@@ -155,7 +160,7 @@ def waitFind(*args, **kwargs) -> NamedPoint:
         if point:
             break
 
-        sleep(LOOP_PAUSE)
+        loopPause()
 
     return point
 
@@ -214,7 +219,7 @@ def waitClick(*locations, delay: float = 0, wait: float = -1, **kwargs) -> Union
         if wait >= 0 and perf_counter() >= timeout:
             return None
 
-        sleep(LOOP_PAUSE)
+        loopPause()
 
     sleep(delay)
     click(point)
