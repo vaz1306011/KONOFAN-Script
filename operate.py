@@ -1,9 +1,9 @@
-from collections import namedtuple
 import json
-import os.path
 import threading
+from collections import namedtuple
+from pathlib import Path
 from time import perf_counter, sleep
-from typing import Any, Iterable, Union
+from typing import Iterable, Union
 
 import pyautogui as pag
 import win32api
@@ -34,7 +34,7 @@ class NamedPoint:
     帶名座標類
     '''
 
-    def __init__(self, pos: Union[Iterable, 'NamedPoint'], name=None) -> None:
+    def __init__(self, pos: Union['NamedPoint', Iterable], name=None) -> None:
         try:
             self.x, self.y = int(pos.x), int(pos.y)
         except AttributeError:
@@ -45,7 +45,7 @@ class NamedPoint:
     def __str__(self) -> str:
         return f'{self.name}:({self.x}, {self.y})'
 
-    def __add__(self, other: Union[Iterable, 'NamedPoint']) -> 'NamedPoint':
+    def __add__(self, other: Union['NamedPoint', Iterable]) -> 'NamedPoint':
         try:
             return NamedPoint((self.x+other.x, self.y+other.y), self.name)
         except AttributeError:
@@ -75,10 +75,10 @@ def getCursorPos() -> NamedPoint:
     '''
     取得滑鼠座標
     '''
-    return NamedPoint((win32gui.GetCursorPos()[0], win32gui.GetCursorPos()[1]), 'CursorPos')
+    return NamedPoint(win32api.GetCursorPos(), 'CursorPos')
 
 
-def getPixel(point: NamedPoint) -> tuple:
+def getPixel(point: NamedPoint) -> tuple[int, int, int]:
     '''
     取得圖片座標像素顏色
 
