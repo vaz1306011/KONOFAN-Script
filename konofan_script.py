@@ -1,4 +1,4 @@
-import konofanScript as ks
+import script as sc
 
 
 def main():
@@ -9,14 +9,14 @@ def main():
             ...
 
         elif key == '1':
-            ks.eventAdventureLoop()
+            sc.eventAdventureLoop()
 
         elif key == '2':
             firstDelay = input('首次延遲(預設0秒):')
-            ks.eventBossLoop(firstDelay)
+            sc.eventBossLoop(firstDelay)
 
         elif key == '3':
-            ks.battleArenaLoop()
+            sc.battleArenaLoop()
 
         else:
             print("輸入錯誤")

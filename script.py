@@ -246,7 +246,7 @@ def eventAdventureLoop() -> None:
         op.waitClick('go')
 
 
-def goHome() -> bool:
+def goHome() -> None:
     '''
     回主畫面
     '''
@@ -254,8 +254,6 @@ def goHome() -> bool:
         op.waitClick('home_0')
     elif op.find('home_1'):
         op.waitClick('home_1')
-
-    return False
 
 
 def goJob() -> None:
