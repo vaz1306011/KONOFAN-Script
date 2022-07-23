@@ -51,6 +51,12 @@ class NamedPoint:
         except AttributeError:
             return NamedPoint((self.x+other[0], self.y+other[1]))
 
+    def __sub__(self, other: Union['NamedPoint', Iterable]) -> 'NamedPoint':
+        try:
+            return NamedPoint((self.x-other.x, self.y-other.y), self.name)
+        except AttributeError:
+            return NamedPoint((self.x-other[0], self.y-other[1]))
+
 
 class NamedPixelColor(namedtuple('NamedPixelColor', ['name', 'color'])):
     ...
