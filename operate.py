@@ -91,11 +91,15 @@ def setPicPath(path: str) -> None:
     path: 圖片表路徑
     '''
     global PIC_PATH, PIC
-    PIC_PATH = path
-    if os.path.isfile(PIC_PATH):
+    if Path(path).is_absolute():
+        PIC_PATH = path
+    else:
+        PIC_PATH = Path(path).resolve().as_posix()
+
+    try:
         with open(PIC_PATH, 'r') as picAddress:
             PIC = json.load(picAddress)
-    else:
+    except FileNotFoundError:
         raise Exception('找不到圖片表')
 
 
