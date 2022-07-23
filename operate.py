@@ -65,7 +65,7 @@ def loopPause(pause=DEFAULT_LOOP_PAUSE):
         raise ExitEventException('強制結束')
 
 
-def mousePoint() -> NamedPoint:
+def getCursorPos() -> NamedPoint:
     '''
     取得滑鼠座標
     '''
