@@ -99,20 +99,6 @@ def setPicPath(path: str) -> None:
         raise Exception('找不到圖片表')
 
 
-def checkPicPath(fun: callable) -> Any:
-    '''
-    檢查圖片表是否存在
-    '''
-    def rtn(*args, **kwargs):
-        if PIC is None:
-            raise Exception('圖片表不存在')
-
-        return fun(*args, **kwargs)
-
-    return rtn
-
-
-@checkPicPath
 def find(*locations: Union[str, NamedPoint],
          confidence: float = DEFALUT_CONFIDENCE,
          centerPixelColor: tuple[NamedPixelColor] = None,
