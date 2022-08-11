@@ -19,12 +19,12 @@ threading.excepthook = excepthook
 class Tray(QSystemTrayIcon):
     def __init__(self, parent=None):
         super().__init__()
-        self.setIcon(QIcon('icon.png'))
-        self.setToolTip('Konofan')
+        self.setIcon(QIcon("icon.ico"))
+        self.setToolTip("Konofan")
 
         self.menu = QMenu()
-        self.menu.addAction('還原主視窗', parent.show)
-        self.menu.addAction('結束', lambda: _exit(0))
+        self.menu.addAction("還原主視窗", parent.show)
+        self.menu.addAction("結束", lambda: _exit(0))
         self.setContextMenu(self.menu)
 
 
@@ -36,7 +36,7 @@ class Ks_Win(Ks_UI, QFrame):
         self.tray.show()
         self.tray.activated.connect(self.trayClick)
 
-        self.icon = QIcon('icon.png')
+        self.icon = QIcon("icon.ico")
         self.setWindowIcon(self.icon)
 
         self.setupUi(self)
@@ -86,11 +86,7 @@ class Ks_Win(Ks_UI, QFrame):
     # 刷活動Boss
     def clickEBL(self):
         sc.op.exit_event.clear()
-        delay, ok = QInputDialog.getText(
-            self,
-            '刷活動Boss',
-            '首次延遲(預設0秒):'
-        )
+        delay, ok = QInputDialog.getText(self, "刷活動Boss", "首次延遲(預設0秒):")
         if ok:
             self.createThread(sc.eventBossLoop, delay)
             self.lockBtn(*self.allBtn)
@@ -105,6 +101,21 @@ class Ks_Win(Ks_UI, QFrame):
     def clickStop(self):
         sc.op.exit_event.set()
         self.unlockBtn(*self.allBtn)
+
+
+def checkSingelProcess():
+    import portalocker
+
+    file = open(__file__, "r")  # 运行的文件
+    try:
+        #  fcntl.LOCK_EX  排他锁:除加锁进程外其他进程没有对已加锁文件读写访问权限
+        #  fcntl.LOCK_NB  非阻塞锁
+        portalocker.flock(file, portalocker.LOCK_EX | portalocker.LOCK_NB)
+    except:
+        print("相同程序正在运行")
+        return False
+    else:
+        return True
 
 
 if __name__ == "__main__":
