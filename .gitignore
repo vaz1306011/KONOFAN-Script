@@ -1,0 +1,11 @@
+desktop.ini
+test.py
+mianUI.py
+main.spec
+Pipfile
+Pipfile.lock
+operate2.py
+
+__pycache__
+dist
+build

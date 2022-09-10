@@ -32,6 +32,7 @@ class ExitEventException(Exception):
 class NamedPoint:
     """
     帶名座標類
+
     """
 
     def __init__(self, pos: Union["NamedPoint", Iterable], name=None) -> None:
@@ -65,6 +66,7 @@ class NamedPixelColor(namedtuple("NamedPixelColor", ["name", "color"])):
 def loopPause(pause=DEFAULT_LOOP_PAUSE):
     """
     等待迴圈延遲並檢查是否結束
+
     """
     sleep(pause)
     if exit_event.is_set():
@@ -74,6 +76,7 @@ def loopPause(pause=DEFAULT_LOOP_PAUSE):
 def getCursorPos() -> NamedPoint:
     """
     取得滑鼠座標
+
     """
     return NamedPoint(win32api.GetCursorPos(), "CursorPos")
 
@@ -83,6 +86,7 @@ def getPixel(point: NamedPoint) -> tuple[int, int, int]:
     取得圖片座標像素顏色
 
     point: 座標
+
     """
     return pag.pixel(point.x, point.y)
 
@@ -92,6 +96,7 @@ def setPicPath(path: str) -> None:
     設定圖片表路徑
 
     path: 圖片表路徑
+
     """
     global PIC_PATH, PIC
     if Path(path).is_absolute():
@@ -119,6 +124,7 @@ def find(
     confidence: 搜尋精準度
     centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
     tolerance: 容許誤差
+
     """
     # 尋找各個點
     point: NamedPoint = None
@@ -165,6 +171,7 @@ def waitFind(*args, **kwargs) -> NamedPoint:
     confidence: 搜尋精準度
     centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
     tolerance: 容許誤差
+
     """
     while True:
         point = find(*args, **kwargs)
@@ -184,6 +191,7 @@ def click(*locations, **kwargs) -> Union[NamedPoint, None]:
     confidence: 搜尋精準度
     centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
     tolerance: 容許誤差
+
     """
     point = find(*locations, **kwargs)
 
@@ -220,6 +228,7 @@ def waitClick(
     confidence: 搜尋精準度
     centerPixelColor: 圖片中心像素顏色 tuple(NamedPixelColor(name, color), ...)
     tolerance: 容許誤差
+
     """
     # 計算超時時間
     if wait >= 0:

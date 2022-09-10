@@ -14,6 +14,7 @@ op.setPicPath(DEFAULT_PIC_PATH)
 def waitLoading() -> None:
     """
     等待Loading
+
     """
     timeout = perf_counter() + 1
     while not op.find("loading"):
@@ -33,6 +34,7 @@ def waitLoading() -> None:
 def waitBattleEnd() -> None:
     """
     等待戰鬥結束
+
     """
     while not op.find("fighting"):
         loopPause()
@@ -46,11 +48,12 @@ def select_team(team: str) -> None:
     選擇隊伍
 
     team: 隊伍名稱 (
-        team_battle_arena_normal,
-        team_battle_arena_ex,
-        team_event,
-        team_cabbage
-        )
+        "team_battle_arena_normal",
+        "team_battle_arena_ex",
+        "team_event",
+        "team_cabbage"
+    )
+
     """
     if not op.find("go"):
         return False
@@ -86,6 +89,7 @@ def select_team(team: str) -> None:
 def goAdventure() -> bool:
     """
     移動到戰鬥
+
     """
     if op.find("adventure_0"):
         op.click("adventure_0")
@@ -100,6 +104,7 @@ def goAdventure() -> bool:
 def battleArenaLoop() -> bool:
     """
     刷競技場
+
     """
 
     def battleArena(mode):
@@ -166,6 +171,7 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
     刷活動BOSS
 
     firstDelay: 第一次延遲
+
     """
 
     def eventBoss() -> int:  # 跑一次活動
@@ -235,6 +241,7 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
 def eventAdventureLoop() -> None:
     """
     刷新活動關卡
+
     """
     while True:
         op.waitClick("next", delay=1.5)
@@ -254,6 +261,7 @@ def eventAdventureLoop() -> None:
 def goHome() -> None:
     """
     回主畫面
+
     """
     if op.find("home_0"):
         op.waitClick("home_0")
@@ -264,6 +272,7 @@ def goHome() -> None:
 def goJob() -> None:
     """
     到打工畫面
+
     """
     op.waitClick("job")
     op.waitClick("all_receive")

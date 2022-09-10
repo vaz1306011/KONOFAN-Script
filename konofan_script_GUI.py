@@ -103,21 +103,6 @@ class Ks_Win(Ks_UI, QFrame):
         self.unlockBtn(*self.allBtn)
 
 
-def checkSingelProcess():
-    import portalocker
-
-    file = open(__file__, "r")  # 运行的文件
-    try:
-        #  fcntl.LOCK_EX  排他锁:除加锁进程外其他进程没有对已加锁文件读写访问权限
-        #  fcntl.LOCK_NB  非阻塞锁
-        portalocker.flock(file, portalocker.LOCK_EX | portalocker.LOCK_NB)
-    except:
-        print("相同程序正在运行")
-        return False
-    else:
-        return True
-
-
 if __name__ == "__main__":
     app = QApplication([])
     win = Ks_Win()
