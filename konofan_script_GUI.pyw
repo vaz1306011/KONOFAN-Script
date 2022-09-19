@@ -1,7 +1,8 @@
+import sys
 import threading
-from os import _exit
 from threading import Thread
 
+from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 
@@ -24,7 +25,7 @@ class Tray(QSystemTrayIcon):
 
         self.menu = QMenu()
         self.menu.addAction("還原主視窗", parent.show)
-        self.menu.addAction("結束", lambda: _exit(0))
+        self.menu.addAction("結束", QCoreApplication.instance().quit)
         self.setContextMenu(self.menu)
 
 
@@ -107,4 +108,4 @@ if __name__ == "__main__":
     app = QApplication([])
     win = Ks_Win()
     win.show()
-    app.exec_()
+    sys.exit(app.exec_())
