@@ -21,7 +21,7 @@ class Tray(QSystemTrayIcon):
     def __init__(self, parent=None):
         super().__init__()
         self.setIcon(QIcon("icon.ico"))
-        self.setToolTip("Konofan")
+        self.setToolTip("KonofanScript")
 
         self.menu = QMenu()
         self.menu.addAction("還原主視窗", parent.show)
@@ -32,6 +32,7 @@ class Tray(QSystemTrayIcon):
 class Ks_Win(Ks_UI, QFrame):
     def __init__(self) -> None:
         super().__init__()
+        self.version = "0.1.3"
 
         self.tray = Tray(self)
         self.tray.show()

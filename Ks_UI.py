@@ -3,11 +3,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ks_UI:
     def setupUi(self, root):
-        self.version = "0.1.3"
+        try:
+            version = str(self.version)
+        except NameError:
+            version = ""
+
         root.setObjectName("root")
         self.setFixedSize(300, 300)
 
-        self.version_label = QtWidgets.QLabel(self.version, root)
+        self.version_label = QtWidgets.QLabel(version, root)
         self.version_label.move(10, 10)
         self.version_label.setFont(QtGui.QFont("Arial", 10))
         self.version_label.setObjectName("version_label")
