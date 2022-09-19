@@ -1,10 +1,16 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ks_UI:
     def setupUi(self, root):
+        self.version = "0.1.3"
         root.setObjectName("root")
         self.setFixedSize(300, 300)
+
+        self.version_label = QtWidgets.QLabel(self.version, root)
+        self.version_label.move(10, 10)
+        self.version_label.setFont(QtGui.QFont("Arial", 10))
+        self.version_label.setObjectName("version_label")
 
         self.EAL_btn = QtWidgets.QPushButton(root)
         self.EAL_btn.setGeometry(QtCore.QRect(100, 50, 101, 31))
