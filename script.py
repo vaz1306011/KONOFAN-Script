@@ -179,27 +179,27 @@ def eventBossLoop(firstDelay: Union[str, int]) -> None:  # 活動迴圈
         跑一次活動(回傳 1:正常運行, 0:需重製預設延遲, -1:無法繼續)
         """
 
-        button = op.waitFind("next", "go", "dead_again")
+        button = op.waitFind("go", "again", "dead_again")
         if button.name == "go":
             op.click(button.name)
             return 0
         else:
             againColor = op.NamedPixelColor("again", (157, 149, 140))
             clicked = op.waitClick(
-                "again", "dead_again", wait=2, centerPixelColor=(againColor,)
+                "again", "dead_again", wait=3, centerPixelColor=(againColor,)
             )
 
-        if clicked is None:
+        if clicked:
+            op.waitClick("ok")
+            if clicked.name == "dead_again":
+                return 0
+            else:
+                return 1
+        else:
             op.waitClick("next", wait=1)
             return -1
 
-        op.waitClick("ok")
-        if clicked.name == "dead_again":
-            return 0
-
-        return 1
-
-    DEFAULT_DELAY = 60  # 預設平均延遲
+    DEFAULT_DELAY = 60  # 預設延遲
 
     select_team("team_event")
     try:
