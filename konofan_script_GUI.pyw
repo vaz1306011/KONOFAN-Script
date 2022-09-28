@@ -1,8 +1,6 @@
 import sys
-import threading
-from threading import Thread
 
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, QThread
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 
@@ -10,11 +8,6 @@ import script as sc
 from Ks_UI import Ks_UI
 
 
-def excepthook(args):
-    raise args[0](args[1])
-
-
-threading.excepthook = excepthook
 
 
 class Tray(QSystemTrayIcon):
@@ -30,9 +23,20 @@ class Tray(QSystemTrayIcon):
 
 
 class Ks_Win(Ks_UI, QFrame):
+    class Thread(QThread):
+        def __init__(self, func, *args, **kwargs):
+            super().__init__()
+            self.func = func
+            self.args = args
+            self.kwargs = kwargs
+
+        def run(self) -> None:
+            self.func(*self.args, **self.kwargs)
+
     def __init__(self) -> None:
         super().__init__()
         self.version = "0.1.3"
+        self.now_event = None
 
         self.tray = Tray(self)
         self.tray.show()
@@ -48,28 +52,15 @@ class Ks_Win(Ks_UI, QFrame):
         self.BAL_btn.clicked.connect(self.clickBAL)
         self.stop_btn.clicked.connect(self.clickStop)
 
-    # 關閉程式
-    def closeEvent(self, event):
-        event.ignore()
-        self.hide()
-        # exit(0)
-        # msBox = QMessageBox(0, '確認', '確定要結束程式嗎?', QMessageBox.Yes | QMessageBox.No, self)
-        # msBox.button(QMessageBox.Yes).setText('是')
-        # msBox.button(QMessageBox.No).setText('否')
-        # click = msBox.exec()
-        # if click == QMessageBox.Yes:
-        #     _exit(0)
-        # else:
-        #     event.ignore()
-
     # 托盤點擊
     def trayClick(self, reason):
         if reason == QSystemTrayIcon.Trigger:
             self.show()
 
+    # 建立執行緒
     def createThread(self, func, *args, **kwargs):
-        t = Thread(target=func, args=args, kwargs=kwargs)
-        t.start()
+        self.now_event = self.Thread(func, *args, **kwargs)
+        self.now_event.start()
 
     def lockBtn(self, *btns):
         for btn in btns:
@@ -101,8 +92,10 @@ class Ks_Win(Ks_UI, QFrame):
 
     # 停止所有任務
     def clickStop(self):
-        sc.op.exit_event.set()
-        self.unlockBtn(*self.allBtn)
+        self.now_event.terminate()
+        self.now_event.wait()
+        if self.now_event.isFinished():
+            self.unlockBtn(*self.allBtn)
 
 
 if __name__ == "__main__":
