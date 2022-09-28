@@ -36,9 +36,14 @@ class Ks_Win(Ks_UI, QFrame):
     def __init__(self) -> None:
         super().__init__()
         self.version = "0.1.3"
+        self.initUI()
         self.now_event = None
 
         self.tray = Tray(self)
+    def initUI(self):
+        self.version = "v0.1.4"
+
+        self.tray = self.Tray(self)
         self.tray.show()
         self.tray.activated.connect(self.trayClick)
 
