@@ -8,20 +8,6 @@ import script as sc
 from Ks_UI import Ks_UI
 
 
-
-
-class Tray(QSystemTrayIcon):
-    def __init__(self, parent=None):
-        super().__init__()
-        self.setIcon(QIcon("icon.ico"))
-        self.setToolTip("KonofanScript")
-
-        self.menu = QMenu()
-        self.menu.addAction("還原主視窗", parent.show)
-        self.menu.addAction("結束", QCoreApplication.instance().quit)
-        self.setContextMenu(self.menu)
-
-
 class Ks_Win(Ks_UI, QFrame):
     class Thread(QThread):
         def __init__(self, func, *args, **kwargs):
@@ -33,12 +19,22 @@ class Ks_Win(Ks_UI, QFrame):
         def run(self) -> None:
             self.func(*self.args, **self.kwargs)
 
+    class Tray(QSystemTrayIcon):
+        def __init__(self, parent=None):
+            super().__init__()
+            self.setIcon(QIcon("icon.ico"))
+            self.setToolTip("KonofanScript")
+
+            self.menu = QMenu()
+            self.menu.addAction("還原主視窗", parent.show)
+            self.menu.addAction("結束", QCoreApplication.instance().quit)
+            self.setContextMenu(self.menu)
+
     def __init__(self) -> None:
         super().__init__()
         self.initUI()
         self.now_event = None
 
-        self.tray = Tray(self)
     def initUI(self):
         self.version = "v0.1.4"
 
