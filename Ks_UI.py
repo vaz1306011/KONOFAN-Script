@@ -11,9 +11,9 @@ class Ks_UI:
         root.setObjectName("root")
         self.setFixedSize(300, 300)
 
-        self.version_label = QtWidgets.QLabel(version, root)
+        self.version_label = QtWidgets.QLabel("版本：" + version, root)
         self.version_label.move(10, 10)
-        self.version_label.setFont(QtGui.QFont("Arial", 10))
+        self.version_label.setFont(QtGui.QFont("Arial", 11))
         self.version_label.setObjectName("version_label")
 
         self.EAL_btn = QtWidgets.QPushButton(root)
