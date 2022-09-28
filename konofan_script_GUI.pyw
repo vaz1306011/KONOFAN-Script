@@ -35,7 +35,6 @@ class Ks_Win(Ks_UI, QFrame):
 
     def __init__(self) -> None:
         super().__init__()
-        self.version = "0.1.3"
         self.initUI()
         self.now_event = None
 
