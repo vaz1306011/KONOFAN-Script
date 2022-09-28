@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+altgraph = "==0.17.2"
+future = "==0.18.2"
+numpy = "==1.23.1"
+opencv-python = "==4.5.5.64"
+pefile = "==2022.5.30"
+pillow = "==9.2.0"
+pyautogui = "==0.9.53"
+pyinstaller = "==5.2"
+pyinstaller-hooks-contrib = "==2022.8"
+pyqt5 = "==5.15.7"
+pyqt5-qt5 = "==5.15.2"
+pyqt5-sip = "==12.11.0"
+pyscreeze = "==0.1.28"
+pywin32 = "==304"
+pywin32-ctypes = "==0.2.0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

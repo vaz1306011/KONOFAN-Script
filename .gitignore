@@ -6,8 +6,8 @@ operate2.py
 desktop.ini
 
 # pipenv
-Pipfile
-Pipfile.lock
+# Pipfile
+# Pipfile.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
