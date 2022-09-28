@@ -101,7 +101,7 @@ def goAdventure() -> bool:
     return False
 
 
-def battleArenaLoop() -> bool:
+def battleArenaLoop() -> None:
     """
     刷競技場
 

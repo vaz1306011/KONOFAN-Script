@@ -52,23 +52,30 @@ class Ks_Win(Ks_UI, QFrame):
         self.BAL_btn.clicked.connect(self.clickBAL)
         self.stop_btn.clicked.connect(self.clickStop)
 
-    # 托盤點擊
-    def trayClick(self, reason):
-        if reason == QSystemTrayIcon.Trigger:
-            self.show()
-
     # 建立執行緒
     def createThread(self, func, *args, **kwargs):
         self.now_event = self.Thread(func, *args, **kwargs)
         self.now_event.start()
 
+    # 鎖定所有按鈕
     def lockBtn(self, *btns):
         for btn in btns:
             btn.setEnabled(False)
 
+    # 解鎖所有按鈕
     def unlockBtn(self, *btns):
         for btn in btns:
             btn.setEnabled(True)
+
+    # 右上角X按鈕
+    def closeEvent(self, event):
+        event.ignore()
+        self.hide()
+
+    # 點擊托盤
+    def trayClick(self, reason):
+        if reason == QSystemTrayIcon.Trigger:
+            self.show()
 
     # 刷活動小關卡
     def clickEAL(self):

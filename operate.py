@@ -17,7 +17,7 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 FAILSAFE: bool = True  # 安全防護
 DEFALUT_CONFIDENCE: float = 0.9  # 預設搜尋精準度
-DEFAULT_LOOP_PAUSE: float = 0.5  # 迴圈間隔
+DEFAULT_LOOP_PAUSE: float = 0.5  # 預設迴圈間隔
 PIC_PATH: str  # 圖片表路徑
 PIC: dict  # 圖片表
 
