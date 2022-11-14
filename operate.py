@@ -63,7 +63,7 @@ class NamedPixelColor(namedtuple("NamedPixelColor", ["name", "color"])):
     ...
 
 
-def loopPause(pause=DEFAULT_LOOP_PAUSE):
+def loopPause(pause=DEFAULT_LOOP_PAUSE) -> None:
     """
     等待迴圈延遲並檢查是否結束
 

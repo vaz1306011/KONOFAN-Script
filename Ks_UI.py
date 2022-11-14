@@ -32,9 +32,6 @@ class Ks_UI:
         except NameError:
             version = ""
 
-        root.setObjectName("root")
-        self.setFixedSize(300, 300)
-
         self.version_label = QtWidgets.QLabel("版本：" + version, root)
         self.version_label.move(10, 10)
         self.version_label.setFont(QtGui.QFont("Arial", 11))
@@ -59,7 +56,7 @@ class Ks_UI:
         self.retranslateUi(root)
         QtCore.QMetaObject.connectSlotsByName(root)
 
-    def retranslateUi(self, root):
+    def retranslateUi(self, root) -> None:
         _translate = QtCore.QCoreApplication.translate
         root.setWindowTitle(_translate("root", "Konofan Script"))
         self.EAL_btn.setText(_translate("root", "刷活動小關卡"))
