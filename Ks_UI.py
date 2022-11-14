@@ -1,8 +1,32 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import *
 
 
 class Ks_UI:
-    def setupUi(self, root):
+    class Tray(QSystemTrayIcon):
+        def __init__(self, parent, icon: QIcon):
+            super().__init__()
+
+            self.setIcon(icon)
+            self.setToolTip("KonofanScript")
+
+            self.menu = QMenu()
+            self.menu.addAction("還原主視窗", parent.show)
+            self.menu.addAction("結束", QCoreApplication.instance().quit)
+            self.setContextMenu(self.menu)
+
+    def setup_ui(self, root) -> None:
+        root.setObjectName("root")
+
+        self.icon = QIcon("icon.ico")
+        self.setWindowIcon(self.icon)
+        self.setFixedSize(300, 300)
+
+        self.tray = self.Tray(self, self.icon)
+        self.tray.show()
+
         try:
             version = str(self.version)
         except NameError:

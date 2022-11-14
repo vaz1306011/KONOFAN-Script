@@ -11,7 +11,7 @@ class Ks_Win(Ks_UI, QFrame):
     def __init__(self) -> None:
         super().__init__()
         self.version = "v0.1.5"
-        self.setupUi(self)
+        self.setup_ui(self)
         self.btn_connect()
         self.now_event = None
 
