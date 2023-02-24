@@ -4,7 +4,7 @@ from collections import namedtuple
 from functools import partial
 from pathlib import Path
 from time import perf_counter, sleep
-from typing import Iterable, Union
+from typing import Iterable, Union, overload
 
 import pyautogui as pag
 import win32api
@@ -163,6 +163,16 @@ def find(
     return None
 
 
+@overload
+def waitFind(
+    *locations: Union[str, NamedPoint],
+    confidence: float = DEFALUT_CONFIDENCE,
+    centerPixelColor: tuple[NamedPixelColor] = None,
+    tolerance: int = 5,
+):
+    ...
+
+
 def waitFind(*args, **kwargs) -> NamedPoint:
     """
     等待圖片出現
@@ -181,6 +191,16 @@ def waitFind(*args, **kwargs) -> NamedPoint:
         loopPause()
 
     return point
+
+
+@overload
+def click(
+    *locations: Union[str, NamedPoint],
+    confidence: float = DEFALUT_CONFIDENCE,
+    centerPixelColor: tuple[NamedPixelColor] = None,
+    tolerance: int = 5,
+):
+    ...
 
 
 def click(*locations, **kwargs) -> Union[NamedPoint, None]:
@@ -214,6 +234,18 @@ def click(*locations, **kwargs) -> Union[NamedPoint, None]:
     win32api.SetCursorPos(currentMouse)
 
     return point
+
+
+@overload
+def waitClick(
+    *locations: Union[str, NamedPoint],
+    delay: float = 0,
+    wait: float = -1,
+    confidence: float = DEFALUT_CONFIDENCE,
+    centerPixelColor: tuple[NamedPixelColor] = None,
+    tolerance: int = 5,
+) -> Union[NamedPoint, None]:
+    ...
 
 
 def waitClick(
